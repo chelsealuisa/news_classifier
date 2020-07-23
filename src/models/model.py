@@ -1,9 +1,10 @@
 import pandas as pd
 import joblib
-from sklearn.feature_extraction.text import TfidfTransform
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
+from typing import Dict
 
 class Model():
 
@@ -31,6 +32,9 @@ class Model():
 
         Args:
             input_path: path to the input csv.
+        Returns:
+            X: feature dataframe.
+            y: target variable dataframe.
 
         """
         if not input_path.endswith('.csv'):
@@ -47,7 +51,7 @@ class Model():
         return X, y
     
  
-    def train(self, input_path: str, params: Dict = None, cv: Int = 5) -> None:
+    def train(self, input_path: str, params: Dict = None, cv: int = None) -> None:
         '''
         Trains a classification model on the given dataset contained in ``input_path``.
 
@@ -59,7 +63,7 @@ class Model():
         '''
         X, y = self._load_data(input_path)
 
-        if cv not None:
+        if cv is not None:
             param_grid = {
                 'tfidf__ngram_range': [(1,1), (1,2)],
                 'clf__loss': ['log', 'hinge', 'modified_huber'],
@@ -75,8 +79,8 @@ class Model():
             ])
             
             search = GridSearchCV(pipe, param_grid, n_jobs=-1, cv=cv, scoring='accuracy')
-            search.fit(X, y)
-            self.model = search.best_estimator_
+            self.model = search.fit(X, y)
+            return 
 
         elif params is None:
             params = self.params
@@ -86,9 +90,10 @@ class Model():
                 ('clf', SGDClassifier(**params, random_state=100))
         ])
         self.model = pipe.fit(X, y)
+        return
 
 
-    def predict(self, example: Str):
+    def predict(self, example: str):
         """
         Returns model prediction for a single example.
 
@@ -97,7 +102,7 @@ class Model():
         Return:
             string: the predicted label.
         """
-        y_pred = self.model.predict([example])
+        y_pred = self.model.predict([example])[0]
         label = self.labels_names[y_pred]
         return label
 
@@ -105,7 +110,7 @@ class Model():
         filepath = os.path.join(path, f'{self.title}_{get_timestamp_str()}.joblib')
         cprint(f'Saving the model to : {filepath}', 'green')
         joblib.dump(self, filepath)
-
+        return
 
     @staticmethod
     def load(path):
@@ -115,10 +120,12 @@ class Model():
         return joblib.load(path)
 
 
-    def run(self, args):
+    def run(self, args=None):
         pass
 
 
 if __name__ == '__main__':
     model = Model()
-    model.run()
+    model.train("data/raw/newsCorpora.csv", cv=2)
+    label = model.predict("Man landed on the moon")
+    print(label)
