@@ -1,6 +1,8 @@
 import pandas as pd
 import joblib
 
+from sklearn.
+
 class Model():
 
     def __init__(self, model = None, parameters = None, title = 'news_classifier', label_col = 'CATEGORY', text_col = 'TITLE'):
@@ -24,7 +26,7 @@ class Model():
 
         """
         if not input_path.endswith('.csv'):
-            cprint('Model cannot be loaded. The path to the input file has to refer to a .csv file', 'red')
+            print('Model cannot be loaded. The path to the input file has to refer to a .csv file', 'red')
             raise FileNotFoundError('Input file path has to end in .csv.')
 
         headers = ['ID', 'TITLE', 'URL', 'PUBLISHER', 'CATEGORY', 'STORY', 'HOSTNAME', 'TIMESTAMP']
