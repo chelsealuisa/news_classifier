@@ -1,7 +1,9 @@
 import pandas as pd
 import joblib
-
-from sklearn.
+from sklearn.feature_extraction.text import TfidfTransform
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import SGDClassifier
+from sklearn.model_selection import GridSearchCV
 
 class Model():
 
@@ -15,6 +17,12 @@ class Model():
         self.parameters = None
         self.label_column = label_col
         self.text_column = text_col
+        self.labels_names = {
+            'b': 'Business',
+            't': 'Science and Technology',
+            'e': 'Entertainment',
+            'm': 'Health'
+        }
 
  
     def _load_data(self, input_path):
@@ -51,11 +59,6 @@ class Model():
         '''
         X, y = self._load_data(input_path)
 
-        pipe = Pipeline(steps=[
-            ('tfidf', TfidfVectorizer()),
-            ('clf', SGDClassifier(random_state=100))
-        ])
-
         if cv not None:
             param_grid = {
                 'tfidf__ngram_range': [(1,1), (1,2)],
@@ -65,6 +68,12 @@ class Model():
                 'clf__shuffle': [True],
                 'clf__max_iter': [500, 1000, 2000],
             }
+            
+            pipe = Pipeline(steps=[
+                ('tfidf', TfidfVectorizer()),
+                ('clf', SGDClassifier(random_state=100))
+            ])
+            
             search = GridSearchCV(pipe, param_grid, n_jobs=-1, cv=cv, scoring='accuracy')
             search.fit(X, y)
             self.model = search.best_estimator_
@@ -72,12 +81,25 @@ class Model():
         elif params is None:
             params = self.params
 
+        pipe = Pipeline(steps=[
+                ('tfidf', TfidfVectorizer()),
+                ('clf', SGDClassifier(**params, random_state=100))
+        ])
         self.model = pipe.fit(X, y)
 
 
-    def predict(self, examples):
-        pass
+    def predict(self, example: Str):
+        """
+        Returns model prediction for a single example.
 
+        Args:
+            example: sample news headline to be predicted, as a string.
+        Return:
+            string: the predicted label.
+        """
+        y_pred = self.model.predict([example])
+        label = self.labels_names[y_pred]
+        return label
 
     def save(self, path):
         filepath = os.path.join(path, f'{self.title}_{get_timestamp_str()}.joblib')
