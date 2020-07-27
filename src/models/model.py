@@ -1,5 +1,8 @@
 import pandas as pd
 import joblib
+import os
+from datetime import datetime
+from termcolor import cprint
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
@@ -14,7 +17,7 @@ class Model():
             self.load(model)
         else:
             self.model = model
-
+        self.title = title
         self.parameters = None
         self.label_column = label_col
         self.text_column = text_col
@@ -80,6 +83,7 @@ class Model():
             
             search = GridSearchCV(pipe, param_grid, n_jobs=-1, cv=cv, scoring='accuracy')
             self.model = search.fit(X, y)
+            self.parameters = search.best_params_
             return 
 
         elif params is None:
@@ -107,7 +111,7 @@ class Model():
         return label
 
     def save(self, path):
-        filepath = os.path.join(path, f'{self.title}_{get_timestamp_str()}.joblib')
+        filepath = os.path.join(path, f'{self.title}_{datetime.now().strftime("%Y-%m-%d_%H%M%S")}.joblib')
         cprint(f'Saving the model to : {filepath}', 'green')
         joblib.dump(self, filepath)
         return
@@ -126,6 +130,15 @@ class Model():
 
 if __name__ == '__main__':
     model = Model()
+    print('training model')
     model.train("data/raw/newsCorpora.csv", cv=2)
-    label = model.predict("Man landed on the moon")
+    print('model trained')
+    print('prediction for "Man landed on the moon":')
+    label = model.predict('Man landed on the moon')
     print(label)
+    print('save model')
+    model.save("./models/")
+    print('load model')
+    print('model params:')
+    print(Model.load("./models/news_classifier_2020-07-27_112325.joblib").parameters)
+    
