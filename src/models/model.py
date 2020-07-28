@@ -1,7 +1,6 @@
 import pandas as pd
 import joblib
 import os
-from datetime import datetime
 from termcolor import cprint
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
@@ -113,8 +112,8 @@ class Model():
         return label
 
     def save(self, path):
-        filepath = os.path.join(path, f'{self.title}_{datetime.now().strftime("%Y-%m-%d_%H%M%S")}.joblib')
-        cprint(f'Saving the model to : {filepath}', 'green')
+        filepath = os.path.join(path, f'{self.title}.joblib')
+        cprint(f'Saving the model to: {filepath}', 'green')
         joblib.dump(self, filepath)
         return
 
