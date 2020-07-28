@@ -8,6 +8,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
 from typing import Dict
+from IPython import embed
 
 class Model():
 
@@ -18,7 +19,7 @@ class Model():
         else:
             self.model = model
         self.title = title
-        self.parameters = None
+        self.parameters = parameters
         self.label_column = label_col
         self.text_column = text_col
         self.labels_names = {
@@ -81,19 +82,20 @@ class Model():
                 ('clf', SGDClassifier(random_state=100))
             ])
             
-            search = GridSearchCV(pipe, param_grid, n_jobs=-1, cv=cv, scoring='accuracy')
-            self.model = search.fit(X, y)
-            self.parameters = search.best_params_
+            self.model = GridSearchCV(pipe, param_grid, n_jobs=-1, cv=cv, scoring='accuracy')
+            self.model.fit(X, y)
+            ## TODO: joblib save and load don't keep params stored
+            self.parameters = self.model.best_params_
             return 
 
-        elif params is None:
-            params = self.params
+        elif params is not None:
+            self.params = params
 
-        pipe = Pipeline(steps=[
+        self.model = Pipeline(steps=[
                 ('tfidf', TfidfVectorizer()),
-                ('clf', SGDClassifier(**params, random_state=100))
+                ('clf', SGDClassifier(**self.params, random_state=100))
         ])
-        self.model = pipe.fit(X, y)
+        self.model.fit(X, y)
         return
 
 
@@ -131,7 +133,14 @@ class Model():
 if __name__ == '__main__':
     model = Model()
     print('training model')
-    model.train("data/raw/newsCorpora.csv", cv=2)
+    params = {
+        'alpha': 0.001, 
+        'loss': 'modified_huber', 
+        'max_iter': 500, 
+        'penalty': 'l2',
+        'shuffle': True, 
+        }
+    model.train("data/raw/newsCorpora.csv", params=params)
     print('model trained')
     print('prediction for "Man landed on the moon":')
     label = model.predict('Man landed on the moon')
@@ -140,5 +149,5 @@ if __name__ == '__main__':
     model.save("./models/")
     print('load model')
     print('model params:')
-    print(Model.load("./models/news_classifier_2020-07-27_112325.joblib").parameters)
-    
+    reloaded_model = Model.load("./models/news_classifier_2020-07-28_113720.joblib")
+    print(reloaded_model.parameters)
