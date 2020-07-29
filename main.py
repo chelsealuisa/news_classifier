@@ -16,7 +16,7 @@ def create_cmd_parser():
     train_parser.add_argument("--cv", '-cv', type=int, default="None", help="number of folds to use for cross validation")
     train_parser.add_argument("--modelpath", "-m", default="./models/", help="path to folder in which to save the model")
 
-    predict_parser = subparsers.add_parser("predict", help="predict a data set")
+    predict_parser = subparsers.add_parser("predict", help="predict a single example")
     predict_parser.set_defaults(cmd="predict")
     predict_parser.add_argument("example", help="example headline to predict")
     predict_parser.add_argument("--modelpath", "-m", default="./models/news_classifier.joblib", help="path to model file to use")

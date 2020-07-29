@@ -6,7 +6,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import classification_report, plot_confusion_matrix, accuracy_score
 from typing import Dict
+import matplotlib.pyplot as plt
 from IPython import embed
 
 class Model():
@@ -41,7 +43,7 @@ class Model():
 
         """
         if not input_path.endswith('.csv'):
-            print('Model cannot be loaded. The path to the input file has to refer to a .csv file', 'red')
+            cprint('Model cannot be loaded. The path to the input file has to refer to a .csv file', 'red')
             raise FileNotFoundError('Input file path has to end in .csv.')
 
         headers = ['ID', 'TITLE', 'URL', 'PUBLISHER', 'CATEGORY', 'STORY', 'HOSTNAME', 'TIMESTAMP']
@@ -111,6 +113,39 @@ class Model():
         label = self.labels_names[y_pred]
         return label
 
+    def eval(self, test_data: str):
+        """
+        Evaluate performance of trained model. Saves a .csv containing the classification report
+        and .png file contaning a plot of the confusion matrix.
+
+        Args:
+            test_data: path to test dataset.
+
+        Return:
+            accuracy of the trained model.
+        """
+        X_test, y_test = self._load_data(test_data)
+
+        if self.model is None:
+            cprint('Trained model not found. A model needs to be trained before it can be evaluated.', 'red')
+            raise TypeError('No trained model.')
+
+        y_pred = self.model.predict(X_test)
+
+        report = classification_report(y_test, y_pred, output_dict=True)
+        pd.DataFrame(report).transpose().to_csv('reports/classification_report.csv')
+        
+        plot_confusion_matrix(self.model, X_test, y_test,
+                                 display_labels=y_test.unique(),
+                                 cmap=plt.cm.Blues,
+                                 normalize=None);
+        plt.savefig('reports/confusion_matrix.png');
+
+        return accuracy_score(y_test, y_pred)
+
+    def eval_cv(self, ):
+        pass
+
     def save(self, path):
         filepath = os.path.join(path, f'{self.title}.joblib')
         cprint(f'Saving the model to: {filepath}', 'green')
@@ -144,9 +179,11 @@ if __name__ == '__main__':
     print('prediction for "Man landed on the moon":')
     label = model.predict('Man landed on the moon')
     print(label)
-    print('save model')
-    model.save("./models/")
-    print('load model')
-    print('model params:')
-    reloaded_model = Model.load("./models/news_classifier_2020-07-28_113720.joblib")
-    print(reloaded_model.parameters)
+    print('evaluate model')
+    print(model.eval('data/raw/newsCorpora.csv'))
+    #print('save model')
+    #model.save("./models/")
+    #print('load model')
+    #print('model params:')
+    #reloaded_model = Model.load("./models/news_classifier_2020-07-28_113720.joblib")
+    #print(reloaded_model.parameters)
