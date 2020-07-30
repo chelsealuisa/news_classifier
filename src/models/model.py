@@ -7,6 +7,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, plot_confusion_matrix, accuracy_score
+from sklearn.exceptions import NotFittedError
 from typing import Dict
 import matplotlib.pyplot as plt
 from IPython import embed
@@ -109,9 +110,14 @@ class Model():
         Return:
             string: the predicted label.
         """
+        if self.model is None:
+            raise NotFittedError('Trained model not found. A model needs to be trained before prediction.')
+
         y_pred = self.model.predict([example])[0]
         label = self.labels_names[y_pred]
         return label
+
+        
 
     def eval(self, test_data: str):
         """
@@ -127,8 +133,7 @@ class Model():
         X_test, y_test = self._load_data(test_data)
 
         if self.model is None:
-            cprint('Trained model not found. A model needs to be trained before it can be evaluated.', 'red')
-            raise TypeError('No trained model.')
+            raise NotFittedError('Trained model not found. A model needs to be trained before evaluation.')
 
         y_pred = self.model.predict(X_test)
 
@@ -166,7 +171,7 @@ class Model():
 
 if __name__ == '__main__':
     model = Model()
-    print('training model')
+    #print('training model')
     params = {
         'alpha': 0.001, 
         'loss': 'modified_huber', 
@@ -174,13 +179,13 @@ if __name__ == '__main__':
         'penalty': 'l2',
         'shuffle': True, 
         }
-    model.train("data/raw/newsCorpora.csv", params=params)
-    print('model trained')
-    print('prediction for "Man landed on the moon":')
+    #model.train("data/raw/newsCorpora.csv", params=params)
+    #print('model trained')
+    #print('prediction for "Man landed on the moon":')
     label = model.predict('Man landed on the moon')
-    print(label)
-    print('evaluate model')
-    print(model.eval('data/raw/newsCorpora.csv'))
+    #print(label)
+    #print('evaluate model')
+    #print(model.eval('data/raw/newsCorpora.csv'))
     #print('save model')
     #model.save("./models/")
     #print('load model')

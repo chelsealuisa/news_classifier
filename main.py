@@ -19,8 +19,12 @@ def create_cmd_parser():
     predict_parser = subparsers.add_parser("predict", help="predict a single example")
     predict_parser.set_defaults(cmd="predict")
     predict_parser.add_argument("example", help="example headline to predict")
-    predict_parser.add_argument("--modelpath", "-m", default="./models/news_classifier.joblib", help="path to model file to use")
+    predict_parser.add_argument("--modelpath", "-m", default="./models/news_classifier.joblib", help="path to model file to load")
 
+    predict_parser = subparsers.add_parser("evaluate", help="evaluate a trained model")
+    predict_parser.set_defaults(cmd="evaluate")
+    predict_parser.add_argument("test_path", help="data to evaluate on")
+    predict_parser.add_argument("--modelpath", "-m", default="./models/news_classifier.joblib", help="path to model file to load")
     return parser
 
 def run(args: List[Any] = None) -> None:
@@ -36,6 +40,11 @@ def run(args: List[Any] = None) -> None:
         model = classifier.load(path=args.modelpath)
         prediction = model.predict(example=args.example)
         cprint(prediction, 'green')
+
+    if args.cmd == "evaluate":
+        model = classifier.load(path=args.modelpath)
+        score = model.eval(test_data=args.test_path)
+        cprint(f'Model accuracy: {score}', 'green')
 
 
 if __name__=="__main__":
