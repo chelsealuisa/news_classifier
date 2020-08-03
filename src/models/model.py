@@ -11,11 +11,13 @@ from sklearn.exceptions import NotFittedError
 from typing import Dict
 import matplotlib.pyplot as plt
 from IPython import embed
+import logging
 
 class Model():
 
     def __init__(self, model = None, parameters = None, title = 'news_classifier', label_col = 'CATEGORY', text_col = 'TITLE'):
-        
+        self.logger = logging.getLogger(__name__)
+
         if isinstance(model, str):
             self.load(model)
         else:
@@ -44,7 +46,7 @@ class Model():
 
         """
         if not input_path.endswith('.csv'):
-            cprint('Model cannot be loaded. The path to the input file has to refer to a .csv file', 'red')
+            self.logger.error('Model cannot be loaded. The path to the input file has to refer to a .csv file')
             raise FileNotFoundError('Input file path has to end in .csv.')
 
         headers = ['ID', 'TITLE', 'URL', 'PUBLISHER', 'CATEGORY', 'STORY', 'HOSTNAME', 'TIMESTAMP']
