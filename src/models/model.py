@@ -49,12 +49,16 @@ class Model():
             self.logger.error('Model cannot be loaded. The path to the input file has to refer to a .csv file')
             raise FileNotFoundError('Input file path has to end in .csv.')
 
+        self.logger.info(f'Loading data from file: {input_path}.')
+
         headers = ['ID', 'TITLE', 'URL', 'PUBLISHER', 'CATEGORY', 'STORY', 'HOSTNAME', 'TIMESTAMP']
         df = pd.read_csv(input_path, sep='\t', header=None, names=headers)
         df = df.sample(10000)
         
         X = df[self.text_column]
         y = df[self.label_column]
+
+        self.logger.info(f'Loaded data. Data size: {df.shape}.')
 
         return X, y
     
@@ -85,7 +89,7 @@ class Model():
                 ('tfidf', TfidfVectorizer()),
                 ('clf', SGDClassifier(random_state=100))
             ])
-            
+            self.logger.info(f'Training model on {input_path} with {cv}-fold grid search CV.')
             self.model = GridSearchCV(pipe, param_grid, n_jobs=-1, cv=cv, scoring='accuracy')
             self.model.fit(X, y)
             ## TODO: joblib save and load don't keep params stored
@@ -94,6 +98,8 @@ class Model():
 
         elif params is not None:
             self.params = params
+        
+        self.logger.info(f'Training model on {input_path} without grid search CV. Parameters: {self.params}.')
 
         self.model = Pipeline(steps=[
                 ('tfidf', TfidfVectorizer()),
@@ -113,6 +119,7 @@ class Model():
             string: the predicted label.
         """
         if self.model is None:
+            self.logger.error('Model not fitted before evaluation.')
             raise NotFittedError('Trained model not found. A model needs to be trained before prediction.')
 
         y_pred = self.model.predict([example])[0]
@@ -135,6 +142,7 @@ class Model():
         X_test, y_test = self._load_data(test_data)
 
         if self.model is None:
+            self.logger.error('Model not fitted before evaluation.')
             raise NotFittedError('Trained model not found. A model needs to be trained before evaluation.')
 
         y_pred = self.model.predict(X_test)
@@ -148,6 +156,8 @@ class Model():
                                  normalize=None);
         plt.savefig('reports/confusion_matrix.png');
 
+        self.logger.info(f'Evaluating model. Model accuracy: {accuracy_score(y_test, y_pred)}')
+
         return accuracy_score(y_test, y_pred)
 
     def eval_cv(self, ):
@@ -155,17 +165,17 @@ class Model():
 
     def save(self, path):
         filepath = os.path.join(path, f'{self.title}.joblib')
-        cprint(f'Saving the model to: {filepath}', 'green')
+        self.logger.info(f'Saving model to: {filepath}.')
         joblib.dump(self, filepath)
         return
 
     @staticmethod
     def load(path):
         if not path.endswith('.joblib'):
-            cprint('Model cannot be loaded. The path to the model has to refer to .joblib file', 'red')
+            self.logger.error('Model cannot be loaded. The path to the model has to refer to .joblib file.')
             raise FileNotFoundError('Model path has to end with .joblib')
+        self.logger.info('Loading model from: {path}')
         return joblib.load(path)
-
 
     def run(self, args=None):
         pass
