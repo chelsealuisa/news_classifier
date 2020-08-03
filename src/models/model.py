@@ -59,7 +59,7 @@ class Model():
         return X, y
     
  
-    def train(self, input_path: str, params: Dict = None, cv: int = None) -> None:
+    def train(self, input_path: str, params: Dict = None, cv: int = 0) -> None:
         '''
         Trains a classification model on the given dataset contained in ``input_path``.
 
@@ -71,7 +71,7 @@ class Model():
         '''
         X, y = self._load_data(input_path)
 
-        if cv is not None:
+        if cv > 0:
             param_grid = {
                 'tfidf__ngram_range': [(1,1), (1,2)],
                 'clf__loss': ['log', 'hinge', 'modified_huber'],

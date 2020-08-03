@@ -15,7 +15,7 @@ def create_cmd_parser():
     train_parser.set_defaults(cmd='train')
     train_parser.add_argument('input_path', help='data to train on')
     train_parser.add_argument('--params', '-p', default='None', help='parameters to train model with')
-    train_parser.add_argument('--cv', '-cv', type=int, default='None', help='number of folds to use for cross validation')
+    train_parser.add_argument('--cv', '-cv', type=int, default='0', help='number of folds to use for cross validation')
     train_parser.add_argument('--modelpath', '-m', default='./models/', help='path to folder in which to save the model')
 
     predict_parser = subparsers.add_parser('predict', help='predict a single example')
