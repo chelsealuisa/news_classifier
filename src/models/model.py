@@ -126,7 +126,6 @@ class Model():
         label = self.labels_names[y_pred]
         return label
 
-        
 
     def eval(self, test_data: str):
         """
@@ -174,7 +173,6 @@ class Model():
         if not path.endswith('.joblib'):
             self.logger.error('Model cannot be loaded. The path to the model has to refer to .joblib file.')
             raise FileNotFoundError('Model path has to end with .joblib')
-        self.logger.info('Loading model from: {path}')
         return joblib.load(path)
 
     def run(self, args=None):
