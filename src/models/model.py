@@ -103,18 +103,17 @@ class Model():
             self.logger.info(f'Training model on {input_path} with {cv}-fold grid search CV.')
             self.model = GridSearchCV(pipe, param_grid, n_jobs=-1, cv=cv, scoring='accuracy')
             self.model.fit(X, y)
-            ## TODO: joblib save and load don't keep params stored
             self.parameters = self.model.best_params_
             return 
 
         elif params is not None:
-            self.params = params
+            self.parameters = params
         
-        self.logger.info(f'Training model on {input_path} without grid search CV. Parameters: {self.params}.')
+        self.logger.info(f'Training model on {input_path} without grid search CV. Parameters: {self.parameters}.')
 
         self.model = Pipeline(steps=[
                 ('tfidf', TfidfVectorizer()),
-                ('clf', SGDClassifier(**self.params, random_state=100))
+                ('clf', SGDClassifier(**self.parameters, random_state=100))
         ])
         self.model.fit(X, y)
         return
@@ -196,16 +195,15 @@ if __name__ == '__main__':
         'penalty': 'l2',
         'shuffle': True, 
         }
-    model.train("data/raw/newsCorpora.csv", params=params)
+    model.train("data/raw/newsCorpora.csv", params=params, cv=2)
     cprint('Model trained', 'green')
-    
+
     cprint('Save model', 'green')
     model.save("./models/")
     
     cprint('Load model', 'green')
-    cprint('Model params:', 'green')
     reloaded_model = Model.load("./models/news_classifier.joblib")
-    cprint(reloaded_model.parameters, 'green')
+    cprint(f'Model params: {reloaded_model.parameters}', 'green')
     
     cprint('Prediction for "Man landed on the moon":', 'green')
     label = model.predict('Man landed on the moon')
