@@ -30,6 +30,13 @@ def create_cmd_parser():
     return parser
 
 def run(args: List[Any] = None) -> None:
+    """
+    Parses arguments from the command line and dispatches commands to the relevant functions.
+
+    Args:
+        args: arguments to parse. defaults to ``sys.argv[1:]``.
+
+    """
     parser = create_cmd_parser()
     args = parser.parse_args(args=args)
     classifier = Model()

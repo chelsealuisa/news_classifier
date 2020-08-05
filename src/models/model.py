@@ -8,18 +8,29 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, plot_confusion_matrix, accuracy_score
 from sklearn.exceptions import NotFittedError
-from typing import Dict
+from typing import Dict, Tuple
 import matplotlib.pyplot as plt
 from IPython import embed
 import logging
 
 class Model():
+    """
+    Creates a text classification model.
 
-    def __init__(self, model = None, parameters = None, title = 'news_classifier', label_col = 'CATEGORY', text_col = 'TITLE'):
+    Args:
+        model: path to a model to load.
+        parameters: model parameters to use. 
+        title: title of the model.
+        label_col: column name of the target variable.
+        text_col: column name of the text to be calssified.
+
+    """
+    def __init__(self, model = None, parameters = None, title = 'news_classifier', 
+    label_col = 'CATEGORY', text_col = 'TITLE') -> None:
         self.logger = logging.getLogger(__name__)
 
         if isinstance(model, str):
-            self.load(model)
+            self.model = self.load(model)
         else:
             self.model = model
         self.title = title
@@ -34,7 +45,7 @@ class Model():
         }
 
  
-    def _load_data(self, input_path):
+    def _load_data(self, input_path: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
         Loads data from csv file given by ``input_path``.
 
@@ -64,7 +75,7 @@ class Model():
     
  
     def train(self, input_path: str, params: Dict = None, cv: int = 0) -> None:
-        '''
+        """
         Trains a classification model on the given dataset contained in ``input_path``.
 
         Args:
@@ -72,7 +83,7 @@ class Model():
             params: parameters to train model with when not using cv; if given, ``self.params`` is not used.
             cv: number of folds to use for cross validation; if None, cross validation is not performed.
             
-        '''
+        """
         X, y = self._load_data(input_path)
 
         if cv > 0:
@@ -109,7 +120,7 @@ class Model():
         return
 
 
-    def predict(self, example: str):
+    def predict(self, example: str) -> str:
         """
         Returns model prediction for a single example.
 
@@ -117,6 +128,7 @@ class Model():
             example: sample news headline to be predicted, as a string.
         Return:
             string: the predicted label.
+
         """
         if self.model is None:
             self.logger.error('Model not fitted before evaluation.')
@@ -127,7 +139,7 @@ class Model():
         return label
 
 
-    def eval(self, test_data: str):
+    def eval(self, test_data: str) -> float:
         """
         Evaluate performance of trained model. Saves a .csv containing the classification report
         and .png file contaning a plot of the confusion matrix.
@@ -137,6 +149,7 @@ class Model():
 
         Return:
             accuracy of the trained model.
+
         """
         X_test, y_test = self._load_data(test_data)
 
@@ -159,9 +172,6 @@ class Model():
 
         return accuracy_score(y_test, y_pred)
 
-    def eval_cv(self, ):
-        pass
-
     def save(self, path):
         filepath = os.path.join(path, f'{self.title}.joblib')
         self.logger.info(f'Saving model to: {filepath}.')
@@ -175,13 +185,10 @@ class Model():
             raise FileNotFoundError('Model path has to end with .joblib')
         return joblib.load(path)
 
-    def run(self, args=None):
-        pass
-
 
 if __name__ == '__main__':
     model = Model()
-    #print('training model')
+    cprint('Training model', 'green')
     params = {
         'alpha': 0.001, 
         'loss': 'modified_huber', 
@@ -189,16 +196,21 @@ if __name__ == '__main__':
         'penalty': 'l2',
         'shuffle': True, 
         }
-    #model.train("data/raw/newsCorpora.csv", params=params)
-    #print('model trained')
-    #print('prediction for "Man landed on the moon":')
+    model.train("data/raw/newsCorpora.csv", params=params)
+    cprint('Model trained', 'green')
+    
+    cprint('Save model', 'green')
+    model.save("./models/")
+    
+    cprint('Load model', 'green')
+    cprint('Model params:', 'green')
+    reloaded_model = Model.load("./models/news_classifier.joblib")
+    cprint(reloaded_model.parameters, 'green')
+    
+    cprint('Prediction for "Man landed on the moon":', 'green')
     label = model.predict('Man landed on the moon')
-    #print(label)
-    #print('evaluate model')
-    #print(model.eval('data/raw/newsCorpora.csv'))
-    #print('save model')
-    #model.save("./models/")
-    #print('load model')
-    #print('model params:')
-    #reloaded_model = Model.load("./models/news_classifier_2020-07-28_113720.joblib")
-    #print(reloaded_model.parameters)
+    cprint(label, 'green')
+    
+    cprint('Evaluate model', 'green')
+    cprint(model.eval('data/raw/newsCorpora.csv'), 'green')
+    
