@@ -180,7 +180,6 @@ class Model():
     @staticmethod
     def load(path):
         if not path.endswith('.joblib'):
-            self.logger.error('Model cannot be loaded. The path to the model has to refer to .joblib file.')
             raise FileNotFoundError('Model path has to end with .joblib')
         return joblib.load(path)
 
