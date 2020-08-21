@@ -1,7 +1,48 @@
-news_classifier
+News Headlines Classifier
 ==============================
 
-A model to classify news articles.
+A toy project to help me practice software development skills for ML.
+
+# 1. Setup
+
+Install the required packages via
+
+```bash
+$ pip3 install -r requirements.txt
+```
+
+Then install the project as a python package
+
+```bash
+$ pip3 install -e .
+```
+
+# 2. Train the model
+
+```bash
+$ python3 -m main train $TRAIN_DIR
+```
+
+Where `$TRAIN_DIR` indicates the path of the .csv file to be used for training.
+
+# 3. Prediction
+
+```bash
+$ python3 -m main predict $example
+```
+
+Where `$example` is the string to be predicted.
+
+# 4. Evaluation
+
+Evaluate an already trained model.
+
+```bash
+$ python3 -m main evaluate $TEST_DIR
+```
+
+Where `$TEST_DIR` indicates the path of the .csv file to be used for testing. 
+The evaluation results will be printed to the standard output and saved in `reports/`.
 
 Project Organization
 ------------
@@ -36,7 +77,7 @@ Project Organization
     │   ├── __init__.py    <- Makes src a Python module
     │   │
     │   ├── data           <- Scripts to download or generate data
-    │   │   └── make_dataset.py
+    │   │   └── get_data.sh
     │   │
     │   ├── features       <- Scripts to turn raw data into features for modeling
     │   │   └── build_features.py
