@@ -34,10 +34,19 @@ class Model():
         else:
             self.model = model
         self.title = title
-        self.parameters = parameters
+        if parameters:
+            self.parameters = parameters
+        else:
+            self.parameters = {
+                'alpha': 0.001, 
+                'loss': 'modified_huber', 
+                'max_iter': 500, 
+                'penalty': 'l2',
+                'shuffle': True, 
+                }
         self.label_column = label_col
         self.text_column = text_col
-        self.labels_names = {
+        self.label_names = {
             'b': 'Business',
             't': 'Science and Technology',
             'e': 'Entertainment',
@@ -135,7 +144,7 @@ class Model():
             raise NotFittedError('Trained model not found. A model needs to be trained before prediction.')
 
         y_pred = self.model.predict([example])[0]
-        label = self.labels_names[y_pred]
+        label = self.label_names[y_pred]
         return label
 
 
