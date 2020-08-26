@@ -66,7 +66,7 @@ class Model():
 
         """
         if not input_path.endswith('.csv'):
-            self.logger.error('Model cannot be loaded. The path to the input file has to refer to a .csv file')
+            self.logger.error('Data cannot be loaded. The path to the input file has to refer to a .csv file')
             raise FileNotFoundError('Input file path has to end in .csv.')
 
         self.logger.info(f'Loading data from file: {input_path}.')

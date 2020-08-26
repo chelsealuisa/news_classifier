@@ -13,7 +13,6 @@ cprint ('Model loaded', 'red')
 def predict():
     if model:
         try:
-            # Get the data from the POST request.
             data = request.get_json(force=True)
             print("data")
             pred = model.predict(data['title'])
