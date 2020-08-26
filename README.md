@@ -5,6 +5,8 @@ A toy project to help me practice software development skills for ML.
 
 # 1. Setup
 
+Download sample data by running `src/data/get_data.sh`. 
+
 Install the required packages via
 
 ```bash
