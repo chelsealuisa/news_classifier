@@ -86,6 +86,9 @@ Project Organization
     │   │   └── model.py
     │   │
     │   └── visualization  <- Scripts to create exploratory and results oriented visualizations``
+    │ 
+    ├── tests              <- Scripts to perform unit tests
+    │   └── test_model.py     <- Tests for model class
     │
     └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
 
