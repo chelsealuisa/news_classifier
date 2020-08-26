@@ -64,7 +64,8 @@ class Model():
 
         headers = ['ID', 'TITLE', 'URL', 'PUBLISHER', 'CATEGORY', 'STORY', 'HOSTNAME', 'TIMESTAMP']
         df = pd.read_csv(input_path, sep='\t', header=None, names=headers)
-        df = df.sample(10000)
+        if len(df)>100000:
+            df = df.sample(10000)
         
         X = df[self.text_column]
         y = df[self.label_column]
